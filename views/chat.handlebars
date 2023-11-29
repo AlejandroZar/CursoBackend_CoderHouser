@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat</title>
+</head>
+<body>
+  <h1>Chat</h1>
+  <div id="chat">
+    {{#each messages}}
+      <p>{{this.user}}: {{this.message}}</p>
+    {{/each}}
+  </div>
+  <form id="messageForm">
+    <input type="text" id="userInput" placeholder="Nombre de usuario" required>
+    <input type="text" id="messageInput" placeholder="Mensaje" required>
+    <button type="submit">Enviar</button>
+  </form>
+
+  <!-- Configuración de Socket.IO -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // Escuchar eventos de actualización del chat
+    socket.on('actualizarChat', (data) => {
+      // Lógica para actualizar el chat en el DOM
+      const chat = document.getElementById('chat');
+      const message = document.createElement('p');
+      message.textContent = `${data.user}: ${data.message}`;
+      chat.appendChild(message);
+    });
+
+    // Enviar mensaje cuando se envíe el formulario
+    const messageForm = document.getElementById('messageForm');
+    messageForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const userInput = document.getElementById('userInput');
+      const messageInput = document.getElementById('messageInput');
+      const user = userInput.value;
+      const message = messageInput.value;
+
+      // Enviar mensaje al servidor
+      socket.emit('enviarMensaje', { user, message });
+
+      // Limpiar campos de entrada
+      userInput.value = '';
+      messageInput.value = '';
+    });
+  </script>
+</body>
+</html>
